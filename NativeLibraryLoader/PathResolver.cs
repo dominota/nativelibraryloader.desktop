@@ -1,9 +1,15 @@
-﻿using Microsoft.DotNet.PlatformAbstractions;
-using Microsoft.Extensions.DependencyModel;
+﻿#if !NETSTANDARD2_0
+#define DESKTOP
+#endif
+
 using System;
 using System.Collections.Generic;
 using System.IO;
+#if !DESKTOP
+using Microsoft.DotNet.PlatformAbstractions;
+using Microsoft.Extensions.DependencyModel;
 using System.Runtime.InteropServices;
+#endif
 
 namespace NativeLibraryLoader
 {
@@ -42,14 +48,17 @@ namespace NativeLibraryLoader
         {
             yield return Path.Combine(AppContext.BaseDirectory, name);
             yield return name;
-            if (TryLocateNativeAssetFromDeps(name, out string appLocalNativePath, out string depsResolvedPath))
+#if !DESKTOP
+			if (TryLocateNativeAssetFromDeps(name, out string appLocalNativePath, out string depsResolvedPath))
             {
                 yield return appLocalNativePath;
                 yield return depsResolvedPath;
             }
+#endif
         }
 
-        private bool TryLocateNativeAssetFromDeps(string name, out string appLocalNativePath, out string depsResolvedPath)
+#if !DESKTOP
+		private bool TryLocateNativeAssetFromDeps(string name, out string appLocalNativePath, out string depsResolvedPath)
         {
             DependencyContext defaultContext = DependencyContext.Default;
             if (defaultContext == null)
@@ -130,6 +139,7 @@ namespace NativeLibraryLoader
 
             return false;
         }
+#endif
 
         private string GetNugetPackagesRootDirectory()
         {
