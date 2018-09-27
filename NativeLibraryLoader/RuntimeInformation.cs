@@ -6,13 +6,15 @@ using System;
 
 #if DESKTOP
 
-namespace NativeLibraryLoader
+namespace System.Runtime.InteropServices
 {
-	class RuntimeInformation
+	public class RuntimeInformation
 	{
 		public static bool IsOSPlatform(OSPlatform osPlatform) => 
 			Array.IndexOf(osPlatform.PlatformIds, Environment.OSVersion.Platform) >= 0;
-	}
+
+	    public static string OSDescription => string.Empty;
+    }
 
 	public class OSPlatform
 	{
