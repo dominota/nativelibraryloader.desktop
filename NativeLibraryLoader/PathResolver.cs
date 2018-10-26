@@ -48,7 +48,9 @@ namespace NativeLibraryLoader
 		{
 			yield return Path.Combine(AppContext.BaseDirectory, name);
 			yield return name;
-#if !DESKTOP
+#if DESKTOP
+			yield return Path.Combine(AppContext.BaseDirectory, $"native{Path.DirectorySeparatorChar}{Rid}{Path.DirectorySeparatorChar}{name}");
+#else
 			if (TryLocateNativeAssetFromDeps(name, out string appLocalNativePath, out string depsResolvedPath))
 			{
 				yield return appLocalNativePath;
@@ -57,7 +59,27 @@ namespace NativeLibraryLoader
 #endif
 		}
 
-#if !DESKTOP
+#if DESKTOP
+
+		static string RidArchitecture =>
+			RuntimeInformation.ProcessArchitecture == Architecture.X64 ? "x64" : "x86";
+
+		static string RidOsName
+		{
+			get
+			{
+				if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+					return "linux";
+				if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+					return "osx";
+				return "win";
+			}
+		}
+
+		// https://docs.microsoft.com/en-us/dotnet/core/rid-catalog
+		static string Rid => $"{RidOsName}-{RidArchitecture}";
+
+#else
 		private bool TryLocateNativeAssetFromDeps(string name, out string appLocalNativePath, out string depsResolvedPath)
 		{
 			DependencyContext defaultContext = DependencyContext.Default;
